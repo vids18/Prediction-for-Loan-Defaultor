@@ -28,52 +28,52 @@ Training the dataset with millions of records and 145 columns using Machine Lear
 |1| acceptD | The date which the borrower accepted the offer | Number|
 |2|accNowDelinq | The number of accounts on which the borrower is now delinquent| Number|
 |3| accOpenPast24Mths | Number of trades opened in past 24 months | Number|
-|4| acaddrState | The state provided by the borrower in the loan application | Number|
+|4| acaddrState | The state provided by the borrower in the loan application | String|
 |5|  all_util | Balance to credit limit on all trades | Number|
 |6| annual_inc_joint | The combined self-reported annual income provided by the co-borrowers during registration | Number|
 |7| annualInc | The self-reported annual income provided by the borrower during registration | Number|
-|8| aapplication_type | Indicates whether the loan is an individual application or a joint application with two co-borrowers | Number|
+|8| aapplication_type | Indicates whether the loan is an individual application or a joint application with two co-borrowers | String|
 |8| avg_cur_bal | Indicates whether the loan is an individual application or a joint application with two co-borrowers | Number|
-|9| aapplication_type |Average current balance of all accounts| Number|
+|9| application_type |Average current balance of all accounts| String|
 |10| abcOpenToBuy | Indicates whether the loan is an individual application or a joint application with two co-borrowers | Number|
 |11| aapplication_type | Total open to buy on revolving bankcards | Number|
 |12| bcUtil | Ratio of total current balance to high credit/credit limit for all bankcard accounts | Number|
 |13| chargeoff_within_12_mths | Number of charge-offs within 12 months | Number|
 |14| acollections_12_mths_ex_med | Number of collections in 12 months excluding medical collections| Number|
-|15| creditPullD | The date LC pulled credit for this loan | Number|
+|15| creditPullD | The date LC pulled credit for this loan | String|
 |16| delinq2Yrs | The number of 30+ days past-due incidences of delinquency in the borrower's credit file for the past 2 years | Number|
 |17| delinqAmnt | Loan description provided by the borrower | Number|
-|18| desc | Indicates whether the loan is an individual application or a joint application with two co-borrowers | Number|
+|18| desc | Indicates whether the loan is an individual application or a joint application with two co-borrowers | String|
 |19| dti | A ratio calculated using the borrower’s total monthly debt payments on the total debt obligations, excluding mortgage and the requested LC loan, divided by the borrower’s self-reported monthly income | Number|
 |20|dti_joint |A ratio calculated using the co-borrowers' total monthly payments on the total debt obligations, excluding mortgages and the requested LC loan, divided by the co-borrowers' combined self-reported monthly income| Number|
-|21| earliestCrLine | The date the borrower's earliest reported credit line was opened | Number|
+|21| earliestCrLine | The date the borrower's earliest reported credit line was opened | String|
 |22| effective_int_rate | The effective interest rate is equal to the interest rate on a Note reduced by Lending Club's estimate of the impact of uncollected interest prior to charge off| Number|
-|23| emp_title | The job title supplied by the Borrower when applying for the loan | Number|
+|23| emp_title | The job title supplied by the Borrower when applying for the loan | String|
 |24|empLength | Employment length in years. Possible values are between 0 and 10 where 0 means less than one year and 10 means ten or more years | Number|
-|25| expD | The date the listing will expire | Number|
+|25| expD | The date the listing will expire | String|
 |26| expDefaultRate | The expected default rate of the loan | Number|
 |27| ficoRangeHigh | The upper boundary range the borrower’s FICO at loan origination belongs to | Number|
 |28| ficoRangeLow | The lower boundary range the borrower’s FICO at loan origination belongs to| Number|
 |29| fundedAmnt | The total amount committed to that loan at that point in time| Number|
 |30| grade | LC assigned loan grade |String |
-|31| homeOwnership |The home ownership status provided by the borrower during registration. Our values are: RENT, OWN, MORTGAGE, OTHER| Number|
+|31| homeOwnership |The home ownership status provided by the borrower during registration. Our values are: RENT, OWN, MORTGAGE, OTHER|String|
 |32| id | A unique LC assigned ID for the loan listing| Number|
 |33| il_util | Ratio of total current balance to high credit/credit limit on all install acct| Number|
-|34| ils_exp_d | wholeloan platform expiration date| Number|
-|35| initialListStatus |The initial listing status of the loan. Possible values are – W, F | Number|
+|34| ils_exp_d | wholeloan platform expiration date| String |
+|35| initialListStatus |The initial listing status of the loan. Possible values are – W, F | String|
 |36| inq_fi| Number of personal finance inquiries | Number|
 |37| inq_last_12m | Number of credit inquiries in past 12 months| Number|
 |38| inqLast6Mths | The number of inquiries in past 6 months (excluding auto and mortgage inquiries) | Number|
 |39| installment |The monthly payment owed by the borrower if the loan originates | Number|
 |40| intRate | Interest Rate on the loan | Number|
-|41| isIncV | Indicates if income was verified by LC, not verified, or if the income source was verified | Number|
-|42| listD|The date which the borrower's application was listed on the platform | Number|
+|41| isIncV | Indicates if income was verified by LC, not verified, or if the income source was verified | String|
+|42| listD|The date which the borrower's application was listed on the platform | String |
 |43| loanAmnt | The listed amount of the loan applied for by the borrower. If at some point in time, the credit department reduces the loan amount, then it will be reflected in this value | Number|
 |44| max_bal_bc|  Maximum current balance owed on all revolving accounts| Number|
 |45| memberId |A unique LC assigned Id for the borrower member | Number|
 |46| mo_sin_old_rev_tl_op |Months since oldest revolving account opened | Number|
 |47| mortAcc | Number of mortgage accounts| Number|
-|48| msa| Metropolitan Statistical Area of the borrower | Number|
+|48| msa| Metropolitan Statistical Area of the borrower | String |
 |49| mths_since_last_major_derog | Months since most recent 90-day or worse rating| Number|
 |50| mths_since_oldest_il_open | Months since oldest bank installment account opened| Number|
 |51|  mths_since_rcnt_il| Months since most recent installment accounts opened | Number|
@@ -107,16 +107,16 @@ Training the dataset with millions of records and 145 columns using Machine Lear
 |78| pct_tl_nvr_dlq | Percent of trades never delinquent | Number|
 |79| percentBcGt75 | Percentage of all bankcard accounts > 75% of limit | Number|
 |80| pubRec | Number of derogatory public records | Number|
-|81| purpose |A category provided by the borrower for the loan request| Number|
-|82| reviewStatus | The status of the loan during the listing period. Values: APPROVED, NOT_APPROVED| Number|
-|83| reviewStatusD | The date the loan application was reviewed by LC| Number|
+|81| purpose |A category provided by the borrower for the loan request| String |
+|82| reviewStatus | The status of the loan during the listing period. Values: APPROVED, NOT_APPROVED| String|
+|83| reviewStatusD | The date the loan application was reviewed by LC| String|
 |84| revolBal | Total credit revolving balance| Number|
 |85| revolUtil |Revolving line utilization rate, or the amount of credit the borrower is using relative to all available revolving credit. | Number|
 |86| serviceFeeRate | Service fee rate paid by the investor for this loan | Number|
-|87|subGrade | LC assigned loan subgrade| Number|
+|87|subGrade | LC assigned loan subgrade| String |
 |88| tax_liens | Number of tax liens| Number|
 |89| term | The number of payments on the loan. Values are in months and can be either 36 or 60 | Number|
-|90| title | The loan title provided by the borrower | Number|
+|90| title | The loan title provided by the borrower | String |
 |91| tot_coll_amt | Total collection amounts ever owed| Number|
 |92| tot_cur_bal | Total current balance of all accounts | Number|
 |93| tot_hi_cred_lim | Total high credit/credit limit | Number|
@@ -127,8 +127,8 @@ Training the dataset with millions of records and 145 columns using Machine Lear
 |98| totalAcc | The total number of credit lines currently in the borrower's credit file| Number|
 |99| totalBalExMort | Total credit balance excluding mortgage | Number|
 |100| totalBcLimit | Total bankcard high credit/credit limit | Number|
-|101| url | URL for the LC page with listing data | Number|
-|102| verified_status_joint | Indicates if the co-borrowers' joint income was verified by LC, not verified, or if the income source was verified | Number|
+|101| url | URL for the LC page with listing data | String |
+|102| verified_status_joint | Indicates if the co-borrowers' joint income was verified by LC, not verified, or if the income source was verified | String |
 |103| zip_code | The first 3 numbers of the zip code provided by the borrower in the loan application | Number|
 |104| revol_bal_joint | Sum of revolving credit balance of the co-borrowers, net of duplicate balances | Number|
 |105| sec_app_fico_range_low | FICO range (low) for the secondary applicant | Number|
