@@ -1,4 +1,4 @@
-# Prediction-for-Loan-Defaultor
+# Prediction-for-Loan-Defaulter
 ## Team Members:
 * Vidhi Chitalia
 * Darsh Thakkar
