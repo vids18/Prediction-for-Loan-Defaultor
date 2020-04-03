@@ -55,7 +55,7 @@ attach(loan)
 # View(loan)
 #Since there are 6.9 million rows and about 145 variables we are trying to get rid of some of the redundant variables and observations
 hm_na <- data.frame(sapply(loan, function(y) sum(length(which(is.na(y))))))
-# View(loan)
+#View(loan)
 hm_na
 
 ## Check all observations with at least one NA in a row
@@ -92,10 +92,10 @@ loan <- loan %>% dplyr::select(everything()) %>%
   filter(application_type %in% c("Individual"))
 View(loan)
 
-ncol(loan)
+#ncol(loan)
 #there are 117 variables
 
-nrow(loan)
+#nrow(loan)
 #there are 137018 observations currently 
 
 ################ Exploratory Data Analysis ##############################
@@ -256,14 +256,14 @@ as.dist(round(as.matrix(x), 2)[1:12, 1:12])
 ########### end of code ########################
 
 ##################### categorization of our data #######################
-names(loan)
+#names(loan)
 library(dplyr)
 
 # View(loan) #130718 obs of 118 variables
 #selection of the variables desired 
 loan = loan %>% select(loan_status , loan_amnt , funded_amnt, installment, int_rate, issue_d , grade , purpose, dti, 
                        emp_length , home_ownership ,annual_inc , term)
-View(loan)
+View(loan) #darsh's mistake
 
 #, addr_state, region, title, sub_grade
 
@@ -273,7 +273,7 @@ View(loan)
 
 
 ## Binarization of Term variable to either 1(36months) and 0(60 months)
-attach(loan)
+#attach(loan)
 unique(term)
 loan$term <- as.numeric(gsub("months", "", loan$term))
 loan$term[loan$term == 36] <-  1
@@ -344,7 +344,8 @@ substrRight <- function(x, n){
   substr(x, nchar(x)-n+1, nchar(x))
 }
 loan$issue_d <- substrRight(loan$issue_d, 4)
-loan$issue_d <- as.numeric(loan$issue_d) #NA's has been introuced here
+loan$issue_d <- as.numeric(loan$issue_d)#NA's has been introuced here
+View(loan$issue_d)
 str(loan$issue_d)
 #the issue_d has now been converted to numeric values
 
@@ -354,7 +355,7 @@ loan$loan_status <- as.character(loan$loan_status)
 loan$loan_status[loan$loan_status == "Fully Paid"] <- 1
 loan$loan_status[loan$loan_status != 1] <- 0
 loan$loan_status <- as.numeric(loan$loan_status)
-View(loan)
+#View(loan)
 str(loan$loan_status)
 #loan status has now been converted to numeric values of 1 and 0
 
@@ -369,11 +370,17 @@ library(corrplot)
 library(GGally)
 
 View(loan)
-Corr1 = cor(loan[-6]) #Used -6 as it points to the issue_d column
-typeof(Corr1)
+corr1 = cor(loan)#trying with all the variables
+#Corr1 = cor(loan[-6]) #Used -6 as it points to the issue_d column
+#typeof(Corr1)
 
 ggcorr(Corr1)
-corrplot(Corr1, method = "square", type = "upper")
+#trying to plot for all variables
+#ggcorr(corr1)
+
+#corrplot(Corr1, method = "square", type = "upper")
+#tryng for all the variables
+corrplot(corr1, method = "square", tytype = "upper")
 
 ##conclusion - We can see that loan_amnt, funded_amnt and installment are highly positively correlated. 
 #Also int_rate and grade are highly negatively correlated 
@@ -406,7 +413,7 @@ with(data=loan,t.test(term[loan_status==1],term[loan_status==0],var.equal=TRUE))
 #2) Chi square Test
 # Chi square test is applied when we have categorical variables in our dataset.
 attach(loan)
-View(loan)
+#View(loan)
 #loan_status and home_ownership
 tbl <- table(loan_status, home_ownership)
 tbl
@@ -422,7 +429,7 @@ chisq.test(tbl)
 #the p-value is <0.05 i.e the two variables contribute in predicting the loan defaultor
 
 
-View(loan) #130718 observations of 13 variables
+#View(loan) #130718 observations of 13 variables
 
 ######################################################################
 
@@ -431,17 +438,18 @@ View(loan) #130718 observations of 13 variables
 library(ggplot2)
 library(factoextra)
 
+View(loan)
 #I have removed the variable issue_d from the current consideration as the issue_d has all NA values which will impact
 #our calculations in PCA
-ABC<- loan[,c("loan_amnt" , "int_rate", "purpose", "dti", 
+ABC<- loan[,c("loan_amnt" , "int_rate","issue_d","grade","purpose", "dti", 
               "emp_length" , "home_ownership" ,"annual_inc" , "term")]
 View(ABC)
 #taking a subset of the dataset and only the desired variables
 
-cor(ABC[,-1])
+cor(ABC)
 ABC[,1]
 
-ABC.pca = prcomp(ABC[,-1], scale. = TRUE)
+ABC.pca = prcomp(ABC, scale. = TRUE)
 summary(ABC.pca)
 
 fviz_eig(ABC.pca) #this will help us better visualize the PCA components
@@ -568,6 +576,166 @@ fa.plot(fit.pc) # See Correlations within Factors
 fa.diagram(fit.pc) # Visualize the relationship
 vss(ABC) # See Factor recommendations for a simple structure
 
+################ end of code ################################################
+
+############ Multinomial Linear Regression ########################
+View(loan)
+mysample = ABC
+View(ABC)
+mysample = loan[,c("loan_status","loan_amnt" ,"installment", "int_rate","issue_d","grade","purpose", "dti", 
+                   "emp_length" , "home_ownership" ,"annual_inc" , "term")]
+mysample <- mysample[sample(1:nrow(mysample), 5000,replace=FALSE),]
+
+
+
+#Multiple Regression
+View(mysample)
+
+# Performing multiple regression on DEF dataset
+fit <- lm(loan_status~loan_amnt+installment+int_rate+
+            issue_d+grade+purpose+dti+emp_length+home_ownership+
+            annual_inc+term, data = mysample)
+#show the results
+summary(fit)
+
+#ANS- By looking at the output we can figure out that int_rate and emp_length are insignificant
+
+#Summary has three sections. Section1: How well does the model fit the data (before Coefficients). Section2: Is the hypothesis supported? (until sifnif codes). Section3: How well does data fit the model (again).
+# Useful Helper Functions
+coefficients(fit)
+library(ggplot2)
+install.packages("GGally")
+library(GGally)
+install.packages("tidyverse")
+library(tidyverse)
+# install.packages("rlang")
+install.packages("https://cran.r-project.org/src/contrib/Archive/rlang/rlang_0.4.4.tar.gz", repo=NULL, type = "source")
+install.packages("caret")
+library(caret)
+ggpairs(data=mysample, title="Loan Data")
+#install.packages("GGally", lib="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
+library(GGally)
+# ggpairs(data=mtcars, title="Cars Data")
+confint(fit,level=0.95)
+# Predicted Values
+fitted(fit)
+residuals(fit)
+#Anova Table
+anova(fit)
+
+#Anova fit tells me that installment, purpose, emp_length are non-significant
+
+
+#dont worry for next two lines
+vcov(fit)
+cov2cor(vcov(fit))
+#acting as outliers for your dataset
+temp <- influence.measures(fit)
+temp
+View(temp) #there are some values which is starred because they have highest residual compared to their y-value
+
+#diagnostic plots
+plot(fit)
+# Assessing Outliers
+library(car)
+outlierTest(fit)
+qqPlot(fit, main="QQ Plot")
+leveragePlots(fit) # leverage plots
+# Influential Observations
+# added variable plots
+avPlots(fit)
+# Cook's D plot
+# identify D values > 4/(n-k-1)
+cutoff <- 4/((nrow(mtcars)-length(fit$coefficients)-2))
+plot(fit, which=4, cook.levels=cutoff)
+# Influence Plot
+influencePlot(fit, id.method="identify", main="Influence Plot", sub="Circle size is proportial to Cook's Distance" )
+# Normality of Residuals
+# qq plot for studentized resid
+qqPlot(fit, main="QQ Plot")
+# distribution of studentized residuals
+library(MASS)
+sresid <- studres(fit)
+hist(sresid, freq=FALSE,
+     main="Distribution of Studentized Residuals")
+xfit<-seq(min(sresid),max(sresid),length=40)
+yfit<-dnorm(xfit)
+lines(xfit, yfit)
+#Non-constant Error Variance
+# Evaluate homoscedasticity
+# non-constant error variance test
+ncvTest(fit)
+# plot studentized residuals vs. fitted values
+spreadLevelPlot(fit)
+#Multi-collinearity
+# Evaluate Collinearity
+vif(fit) # variance inflation factors
+sqrt(vif(fit)) > 2 # problem?
+#Nonlinearity
+# component + residual plot
+crPlots(fit)
+# Ceres plots
+ceresPlots(fit)
+#Non-independence of Errors
+# Test for Autocorrelated Errors
+durbinWatsonTest(fit)
+# Global test of model assumptions
+library(gvlma)
+install.packages("gvlma", lib="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
+library(gvlma)
+gvmodel <- gvlma(fit)
+summary(gvmodel)
+fit
+summary(fit)
+fit1 <- fit
+fit2 <- lm(loan_status~loan_amnt+installment+
+             issue_d+grade+purpose+dti+emp_length+home_ownership+
+             annual_inc+term, data = mysample)
+#Removing interest rate from the fit
+# compare models
+anova(fit1, fit2)
+
+#add this library so your step AIC function will work
+library(MASS)
+step <- stepAIC(fit, direction="both")
+step$anova # display results
+install.packages("leaps", lib="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
+library(leaps)
+leaps<-regsubsets(loan_status~loan_amnt+installment+
+                    issue_d+grade+purpose+dti+emp_length+home_ownership+
+                    annual_inc+term, data = mysample,nbest=10)
+# view results
+summary(leaps) #tells us about the outliers
+
+# plot a table of models showing variables in each model.
+# models are ordered by the selection statistic.
+plot(leaps)
+plot(leaps,scale="r2")
+############## this is not working 
+subsets(leaps, data=mtcars, statistic="rsq") #rsq is for rsquare adjusted 
+####################################
+# All Subsets Regression
+plot(leaps,scale="bic")
+summary(leaps)
+?regsubsets
+summary(leaps)
+View(leaps)
+leaps
+coef(leaps,1:5)
+# Calculate Relative Importance for Each Predictor
+install.packages("relaimpo", lib="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
+library(relaimpo)
+calc.relimp(fit,type=c("lmg","last","first","pratt"),
+            rela=TRUE)
+# Bootstrap Measures of Relative Importance (1000 samples)
+boot <- boot.relimp(fit, b = 1000, type = c("lmg",
+                                            "last", "first", "pratt"), rank = TRUE,
+                    diff = TRUE, rela = TRUE)
+booteval.relimp(boot) # print result
+plot(booteval.relimp(boot,sort=TRUE)) # plot result
+#https://rpubs.com/davoodastaraky/mtRegression
+summary(fit)
+predict.lm(fit, data.frame(wt =3.2 ,drat=3.9,hp=130,disp=150) )
 
 
 
