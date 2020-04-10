@@ -60,13 +60,13 @@ hm_na
 
 ## Check all observations with at least one NA in a row
 loan <- loan[, colSums(is.na(loan))<= 0.6*nrow(loan)]
-View(loan)
+#View(loan)
 
 #the loan data fram has 697957 observations of 117 variables
 
 ## Removing all observations with at least one NA in a row
 loan <- na.omit(loan)
-View(loan)
+#View(loan)
 
 #The loan data frame has 142301 observations of 117 variables
 #[(697957-142301)/697957] * 100= 79% of the observations have been removed
@@ -84,13 +84,13 @@ unique(loan_status)
 library(dplyr)
 loan <- loan %>% dplyr::select(everything()) %>% 
   filter(loan_status %in% c("Fully Paid", "Charged Off"))
-View(loan)
+#View(loan)
 
 ## Filter observations for only individual applicants
 unique(application_type)
 loan <- loan %>% dplyr::select(everything()) %>%
   filter(application_type %in% c("Individual"))
-View(loan)
+#View(loan)
 
 #ncol(loan)
 #there are 117 variables
@@ -201,7 +201,7 @@ plot(loan_amnt,installment, main="Scatterplot", xlab=" Loan Amount ", ylab="Inst
 # View(loan) #the issue_d is in the date format
 # Summary for the Dataset
 summary(loan)
-View(loan)
+#View(loan)
 
 
 
@@ -257,13 +257,14 @@ as.dist(round(as.matrix(x), 2)[1:12, 1:12])
 
 ##################### categorization of our data #######################
 #names(loan)
+install.packages("dplyr")
 library(dplyr)
 
 # View(loan) #130718 obs of 118 variables
 #selection of the variables desired 
 loan = loan %>% select(loan_status , loan_amnt , funded_amnt, installment, int_rate, issue_d , grade , purpose, dti, 
                        emp_length , home_ownership ,annual_inc , term)
-View(loan) #darsh's mistake
+#View(loan) 
 
 #, addr_state, region, title, sub_grade
 
@@ -273,13 +274,13 @@ View(loan) #darsh's mistake
 
 
 ## Binarization of Term variable to either 1(36months) and 0(60 months)
-#attach(loan)
+attach(loan)
 unique(term)
 loan$term <- as.numeric(gsub("months", "", loan$term))
 loan$term[loan$term == 36] <-  1
 loan$term[loan$term != 1] <- 0
 
-View(loan)
+#View(loan)
 str(loan$term)
 #the term has now has been converted to numeric values
 
@@ -369,12 +370,12 @@ library(polycor)
 library(corrplot)
 library(GGally)
 
-View(loan)
+#View(loan)
 corr1 = cor(loan)#trying with all the variables
 #Corr1 = cor(loan[-6]) #Used -6 as it points to the issue_d column
 #typeof(Corr1)
 
-ggcorr(Corr1)
+ggcorr(corr1)
 #trying to plot for all variables
 #ggcorr(corr1)
 
@@ -438,12 +439,12 @@ chisq.test(tbl)
 library(ggplot2)
 library(factoextra)
 
-View(loan)
+#View(loan)
 #I have removed the variable issue_d from the current consideration as the issue_d has all NA values which will impact
 #our calculations in PCA
 ABC<- loan[,c("loan_amnt" , "int_rate","issue_d","grade","purpose", "dti", 
               "emp_length" , "home_ownership" ,"annual_inc" , "term")]
-View(ABC)
+#View(ABC)
 #taking a subset of the dataset and only the desired variables
 
 cor(ABC)
@@ -459,7 +460,7 @@ fviz_eig(ABC.pca) #this will help us better visualize the PCA components
 ############### Dendogram ###############################################
 install.packages("cluster", lib="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
 library(cluster)
-View(loan)
+#View(loan)
 # take a random sample of size 50 from a dataset of loan
 # sample without replacement
 mysample <- loan[sample(1:nrow(loan), 50,replace=FALSE),]
@@ -482,9 +483,9 @@ plot(as.dendrogram(clusemploy.nn),ylab="Distance",ylim=c(0,6),
 
 
 # We will use agnes function as it allows us to select option for data standardization, the distance measure and clustering algorithm in one single function
-?agnes
+
 (agn.employ <- agnes(mysample, metric="euclidean", stand=TRUE, method = "single"))
-View(agn.employ)
+#View(agn.employ)
 
 #  Description of cluster merging
 agn.employ$merge
@@ -500,7 +501,7 @@ plot(agn.employ, which.plots=2)
 ##################################################################################
 
 ################## Factor Analysis #########################
-View(ABC)
+#View(ABC)
 
 #calculating the correlation matrix for all the numeric data in our dataset
 #so we are using the ABC matrix which has all these values
@@ -523,7 +524,7 @@ sumlambdas
 
 propvar <- round(eigen_euroemp/sumlambdas,2)
 propvar
-?cumsum
+
 cumvar_euroemp <- cumsum(propvar)
 cumvar_euroemp
 matlambdas <- rbind(eigen_euroemp,propvar,cumvar_euroemp)
@@ -543,7 +544,7 @@ communalities.emp <- rowSums(unrot.fact.emp^2)
 communalities.emp
 # Performing the varimax rotation. The default in the varimax function is norm=TRUE thus, Kaiser normalization is carried out
 rot.fact.emp <- varimax(unrot.fact.emp)
-View(unrot.fact.emp)
+#View(unrot.fact.emp)
 rot.fact.emp
 #The print method of varimax omits loadings less than abs(0.1). In order to display all the loadings, it is necessary to ask explicitly the contents of the object $loadings
 fact.load.emp <- rot.fact.emp$loadings[1:8,1:4]
@@ -551,6 +552,7 @@ fact.load.emp
 #Computing the rotated factor scores for the 30 European Countries. Notice that signs are reversed for factors F2 (PC2), F3 (PC3) and F4 (PC4)
 scale.emp <- scale(ABC)
 scale.emp
+#this gives you an error
 as.matrix(scale.emp)%*%fact.load.emp%*%solve(t(fact.load.emp)%*%fact.load.emp)
 
 library(psych)
@@ -579,9 +581,9 @@ vss(ABC) # See Factor recommendations for a simple structure
 ################ end of code ################################################
 
 ############ Multinomial Linear Regression ########################
-View(loan)
+#View(loan)
 mysample = ABC
-View(ABC)
+#View(ABC)
 mysample = loan[,c("loan_status","loan_amnt" ,"installment", "int_rate","issue_d","grade","purpose", "dti", 
                    "emp_length" , "home_ownership" ,"annual_inc" , "term")]
 mysample <- mysample[sample(1:nrow(mysample), 5000,replace=FALSE),]
@@ -632,7 +634,7 @@ cov2cor(vcov(fit))
 #acting as outliers for your dataset
 temp <- influence.measures(fit)
 temp
-View(temp) #there are some values which is starred because they have highest residual compared to their y-value
+#View(temp) #there are some values which is starred because they have highest residual compared to their y-value
 
 #diagnostic plots
 plot(fit)
@@ -719,7 +721,7 @@ plot(leaps,scale="bic")
 summary(leaps)
 ?regsubsets
 summary(leaps)
-View(leaps)
+#View(leaps)
 leaps
 coef(leaps,1:5)
 # Calculate Relative Importance for Each Predictor
@@ -736,6 +738,136 @@ plot(booteval.relimp(boot,sort=TRUE)) # plot result
 #https://rpubs.com/davoodastaraky/mtRegression
 summary(fit)
 predict.lm(fit, data.frame(wt =3.2 ,drat=3.9,hp=130,disp=150) )
+
+############### end of code ##########################################
+
+############ Multinomial Logistic Regression #############################
+
+
+xtabs(~ loan_status + grade, data=loan)
+logistic_simple <- glm(loan_status ~ grade, data=loan, family="binomial")
+summary(logistic_simple)
+
+
+xtabs(~ loan_status + purpose, data=loan)
+logistic_simple <- glm(loan_status ~ purpose, data=loan, family="binomial")
+summary(logistic_simple)
+
+
+### Now calculate the overall "Pseudo R-squared" and its p-value
+## NOTE: Since we are doing logistic regression...
+## Null devaiance = 2*(0 - LogLikelihood(null model))
+##               = -2*LogLikihood(null model)
+## Residual deviance = 2*(0 - LogLikelihood(proposed model))
+##                   = -2*LogLikelihood(proposed model)
+ll.null <- logistic_simple$null.deviance/-2
+ll.proposed <- logistic_simple$deviance/-2
+ll.null
+ll.proposed
+
+## McFadden's Pseudo R^2 = [ LL(Null) - LL(Proposed) ] / LL(Null)
+(ll.null - ll.proposed) / ll.null
+## chi-square value = 2*(LL(Proposed) - LL(Null))
+## p-value = 1 - pchisq(chi-square value, df = 2-1)
+1 - pchisq(2*(ll.proposed - ll.null), df=1)
+1 - pchisq((logistic_simple$null.deviance - logistic_simple$deviance), df=1)
+## Lastly, let's  see what this logistic regression predicts, given
+predicted.data <- data.frame(probability.of.paying.loan=logistic_simple$fitted.values,grade=loan$grade)
+predicted.data
+
+## We can plot the data...
+xtabs(~ probability.of.paying.loan + grade, data=predicted.data)
+
+
+logistic <- glm(loan_status ~ ., data=loan, family="binomial")
+summary(logistic)
+
+ll.null <- logistic$null.deviance/-2
+ll.proposed <- logistic$deviance/-2
+
+
+## McFadden's Pseudo R^2 = [ LL(Null) - LL(Proposed) ] / LL(Null)
+(ll.null - ll.proposed) / ll.null
+## The p-value for the R^2
+1 - pchisq(2*(ll.proposed - ll.null), df=(length(logistic$coefficients)-1))
+
+## now we can plot the data
+predicted.data <- data.frame(probability.of.paying.loan=logistic$fitted.values,loan_status=loan$loan_status)
+predicted.data <- predicted.data[order(predicted.data$probability.of.paying.loan, decreasing=FALSE),]
+predicted.data$rank <- 1:nrow(predicted.data)
+
+
+## Lastly, we can plot the predicted probabilities for each sample paying
+## loan and color by whether or not they actually pay the loan or not
+ggplot(data=predicted.data, aes(x=rank, y=probability.of.paying.loan)) +
+  geom_point(aes(color=loan_status), alpha=1, shape=4, stroke=2) +
+  xlab("Index") +
+  ylab("Predicted probability of loan payment")
+
+# Few packages for confusion matrix. Lets look at them one by one
+install.packages("regclass")
+library(regclass)
+confusion_matrix(logistic)
+
+library(caret)
+
+pdata <- predict(logistic,newdata=loan,type="response")
+pdata
+
+loan$loan_status
+
+pdataF <- as.factor(ifelse(test=as.numeric(pdata>0.5) == 1, yes=1, no=0 ))
+pdataF
+install.packages("e1071")
+library(e1071)
+
+confusionMatrix(pdataF,as.factor(loan$loan_status))
+
+
+library(pROC)
+
+
+roc(loan$loan_status,logistic$fitted.values,plot=TRUE)
+
+par(pty = "s")
+## NOTE: By default, roc() uses specificity on the x-axis and the values range
+## from 1 to 0. This makes the graph look like what we would expect, but the
+## x-axis itself might induce a headache. To use 1-specificity (i.e. the
+## False Positive Rate) on the x-axis, set "legacy.axes" to TRUE.
+#roc(loan$grade, glm.fit$fitted.values, plot=TRUE, legacy.axes=TRUE)
+roc(loan$loan_status,logistic$fitted.values,plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4)
+#roc(loan$loan_status,logistic$fitted.values,plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4)
+## If we want to find out the optimal threshold we can store the
+## data used to make the ROC graph in a variable...
+roc.info <- roc(loan$loan_status, logistic$fitted.values, legacy.axes=TRUE)
+str(roc.info)
+roc.df <- data.frame(tpp=roc.info$sensitivities*100, ## tpp = true positive percentage
+                     fpp=(1 - roc.info$specificities)*100, ## fpp = false positive precentage
+                     thresholds=roc.info$thresholds)
+roc.df
+head(roc.df) ## head() will show us the values for the upper right-hand corner of the ROC graph, when the threshold is so low
+## (negative infinity) that every single sample is called "obese".
+## Thus TPP = 100% and FPP = 100%
+tail(roc.df) ## tail() will show us the values for the lower left-hand corner
+## of the ROC graph, when the threshold is so high (infinity)
+## that every single sample is called "not obese".
+## Thus, TPP = 0% and FPP = 0%
+## now let's look at the thresholds between TPP 60% and 80%
+roc.df[roc.df$tpp > 60 & roc.df$tpp < 80,]
+roc(loan$loan_status,logistic$fitted.values,plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4, percent=TRUE)
+roc(loan$loan_status,logistic$fitted.values,plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4, percent=TRUE, print.auc=TRUE)
+roc(loan$loan_status,logistic$fitted.values,plot=TRUE, legacy.axes=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4, percent=TRUE, print.auc=TRUE, partial.auc=c(100, 90), auc.polygon = TRUE, auc.polygon.col = "#377eb822", print.auc.x=45)
+# Lets do two roc plots to understand which model is better
+roc(loan$loan_status, logistic_simple$fitted.values, plot=TRUE, legacy.axes=TRUE, percent=TRUE, xlab="False Positive Percentage", ylab="True Postive Percentage", col="#377eb8", lwd=4, print.auc=TRUE)
+# Lets add the other graph
+plot.roc(loan$loan_status, logistic$fitted.values, percent=TRUE, col="#4daf4a", lwd=4, print.auc=TRUE, add=TRUE, print.auc.y=40)
+legend("bottomright", legend=c("Simple", "Non Simple"), col=c("#377eb8", "#4daf4a"), lwd=4) # Make it user friendly
+
+#Conclusion- SO, according to the consfusin matrix, the accuracy of logistic regression
+# is 76.63% i.e., the model classifies values correctly 76 times out of 100.
+
+
+
 
 
 
