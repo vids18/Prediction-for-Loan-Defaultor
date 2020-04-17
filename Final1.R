@@ -48,6 +48,9 @@ library(rmarkdown)
 install.packages("MASS")
 library(MASS)
 
+install.packages("ROCR", lib="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
+
+
 loan <- read.csv('sub1.csv')
 
 
@@ -232,42 +235,18 @@ stateTX = loan[addr_state== 'TX',]
 stateTX
 stateFL = loan[addr_state== 'FL',]
 stateFL
-#########################################################
+########################################################################
 
-############ calculating the covariance between variables##############
-#################Code not working properly
-
-measure <-structure(list(v1 = 1:25, v2 = c(2500L, 30000L, 5000L, 4000L, 30000L, 5550L,
-                                           2000L, 6000L, 5000L, 6000L, 5500L, 28000L, 11200L, 6500L, 22000L, 3500L, 7000L, 25000L, 16000L,
-                                           13000L,10000L,13000L,9600L,3500L,16000L), 
-                         v3 = c(13.56, 18.94, 17.97, 18.94, 16.14, 15.02, 17.97, 13.56, 17.97, 14.47, 22.35, 11.31, 8.19, 17.97, 12.98, 16.14, 12.98, 16.91, 20.89, 14.47,13.56,14.47,23.4,20.89,26.31), 
-                         v4 = c(18.24,326.52, 10.51, 16.74, 26.35, 37.94, 2.4, 30.1, 21.16, 17.43, 15.94, 22.01, 23.6, 28.78, 11.19, 13.63,15.2, 6.26, 27.57, 26.16,10.62,10.58,23.01,9.09,33.62),
-                         v5=c(55000L, 90000L, 59280L, 92000L, 57250L,152500L,51000L,65000L,53580L,300000L,50000L,70000L,65000L,154000L,65000L,80000L,102500L,23878L,120000L,75000L,65000L,55000L,65000L,40000L,33000L)), .Names = c("V1", "V2", "V3","V4","V5"), class = "data.frame", row.names = c(NA, -25L))
-
-measure <- measure[,-1]
-
-names(measure) <- c("loan_amnt", "int_rate", "annual_inc")
-
-x <- dist(scale(measure[, c("loan_amnt", "int_rate", "annual_inc")],
-                center = FALSE))
-as.dist(round(as.matrix(x), 2)[1:12, 1:12])
-
-
-########### end of code ########################
 
 ##################### categorization of our data #######################
 #names(loan)
-install.packages("dplyr")
+#install.packages("dplyr")
 library(dplyr)
 
 # View(loan) #130718 obs of 118 variables
 #selection of the variables desired 
 loan = loan %>% select(loan_status , loan_amnt , funded_amnt, installment, int_rate, issue_d , grade , purpose, dti, 
                        emp_length , home_ownership ,annual_inc , term)
-#View(loan) 
-
-#, addr_state, region, title, sub_grade
-
 
 #Here we have 130718 rows and 13 variables
 
@@ -346,7 +325,7 @@ substrRight <- function(x, n){
 }
 loan$issue_d <- substrRight(loan$issue_d, 4)
 loan$issue_d <- as.numeric(loan$issue_d)#NA's has been introuced here
-View(loan$issue_d)
+# View(loan$issue_d)
 str(loan$issue_d)
 #the issue_d has now been converted to numeric values
 
@@ -372,15 +351,7 @@ library(GGally)
 
 #View(loan)
 corr1 = cor(loan)#trying with all the variables
-#Corr1 = cor(loan[-6]) #Used -6 as it points to the issue_d column
-#typeof(Corr1)
-
 ggcorr(corr1)
-#trying to plot for all variables
-#ggcorr(corr1)
-
-#corrplot(Corr1, method = "square", type = "upper")
-#tryng for all the variables
 corrplot(corr1, method = "square", tytype = "upper")
 
 ##conclusion - We can see that loan_amnt, funded_amnt and installment are highly positively correlated. 
@@ -865,6 +836,152 @@ legend("bottomright", legend=c("Simple", "Non Simple"), col=c("#377eb8", "#4daf4
 
 #Conclusion- SO, according to the consfusin matrix, the accuracy of logistic regression
 # is 76.63% i.e., the model classifies values correctly 76 times out of 100.
+
+############## end of code ###########################
+
+############### Multi-Discriminnat-Analysis ###############################
+library(MASS)
+
+# Lets cut the data into two parts
+#75 % and 25%
+smp_size_raw <- floor(0.75 * nrow(loan)) #Calculating a 75% sample from the population of 1370718 obs i.e 98038 observations
+train_ind_raw <- sample(nrow(loan), size = smp_size_raw) #Taking a sample of size 98038 from the population of 1370718 observations
+train_raw.df <- as.data.frame(loan[train_ind_raw, ]) # first 98038 observations for the training 
+test_raw.df <- as.data.frame(loan[-train_ind_raw, ]) #the remaining 32680 observations for testing the data
+# We now have a training and a test set. Training is 75% and test is 25%
+loan_raw.lda <- lda(formula = train_raw.df$loan_status ~ ., data = train_raw.df) 
+loan_raw.lda
+summary(loan_raw.lda)
+print(loan_raw.lda)
+plot(loan_raw.lda)
+loan_raw.lda.predict <- predict(loan_raw.lda, newdata = test_raw.df) #prediction will be done on the test data which is 25% of the overall population
+#the above prediction has three items called class, posterior and x
+
+loan_raw.lda.predict$class #contains a list of 1's and 0's
+View(loan_raw.lda.predict)
+loan_raw.lda.predict$x #all the z-scores
+
+# Get the posteriors as a dataframe.
+
+loan_raw.lda.predict.posteriors <- as.data.frame(loan_raw.lda.predict$posterior)
+# install.packages("ROCR", lib="/Library/Frameworks/R.framework/Versions/3.5/Resources/library")
+library(ROCR)
+#create ROC/AUC curve
+#prediction function is used for posterier data and test data$diagnosis
+pred <- prediction(loan_raw.lda.predict.posteriors[,2], test_raw.df$loan_status) 
+
+#pred has various parameters in the list which are predictions, labels, cutoffs, fp,tp,
+#tn, fn, n.pos, n.neg, n.neg.pred,n.pos.pred
+
+
+roc.perf = performance(pred, measure = "tpr", x.measure = "fpr")
+auc.train <- performance(pred, measure = "auc")
+auc.train <- auc.train@y.values
+plot(roc.perf)
+abline(a=0, b= 1)
+text(x = .25, y = .65 ,paste("AUC = ", round(auc.train[[1]],3), sep = "")) #the area under the curve is being calculated and displayed which shows that our model has about 98.3% accuracy of predicting
+
+#Ans- Conclusion:- The area under the curve gives us precision of 0.698~ 69.8%.
+# This implies that the chosen model will be able to predict the correct values 70 times out of 100.
+
+
+
+attach(loan)
+r <- lda(formula = loan_status ~ ., data = loan) #Species is a categorical variable which is taken against all the other variables
+
+#LD1 represent function which has one group
+r$counts #what the membership is
+r$means #what the means are
+r$scaling #to see the dist formula to get multi linearsity out
+r$prior
+r$lev
+r$svd
+#singular values (svd) that gives the ratio of the between- and within-group standard deviations on the linear discriminant variables.
+class(r)
+?lda
+r$N
+r$call
+(prop = r$svd^2/sum(r$svd^2)) #answer=1
+
+r2 <- lda(formula = loan_status ~ ., data = loan, CV = TRUE)
+r2 #this will tell us the accuracy and the groups
+head(r2$class)
+#the Maximum a Posteriori Probability (MAP) classification (a factor)
+#posterior: posterior probabilities for the classes.
+head(r2$posterior, 3)
+#calculating for the 75% of the overall observations
+train <- sample(1:130718, 98038)
+r3 <- lda(loan_status ~ ., # training model
+          loan,
+          #prior = c(0.5,0.5,0.5)/3, #telling the comp use that to adjust the probabilities
+          #we are setting 1,1,1 but you can set it by yourself based on the cut-off values
+          subset = train)
+plda = predict(object = r3, # predictions
+               newdata = loan[-train, ])
+head(plda$class)
+head(plda$posterior, 6) # posterior prob.
+head(plda$x, 3)
+plot(r)
+plot(r3) #this function performs better than r 
+
+r <- lda(loan_status ~ .,
+         loan)
+         #prior = c(1,1,1)/3)
+prop.lda = r$svd^2/sum(r$svd^2)
+plda <- predict(object = r,
+                newdata = loan)
+dataset = data.frame(loan_status = loan[,"loan_status"],lda = plda$x)
+library(ggplot2)
+install.packages("memisc")
+library(memisc)
+##############this line isn't working ##############
+ggplot(dataset) + geom_point(aes(lda.LD1, lda.LD2, colour = loan_status, shape = loan_status), size = 2.5) + labs(x = paste("LD1 (", percent(prop.lda[1]), ")", sep=""),y = paste("LD2 (", percent(prop.lda[2]), ")", sep=""))
+#######################################333
+
+# lets play with accuracy
+# lets look at another way to divide a dataset
+
+library(dplyr) # has a sample function
+set.seed(101) # Nothing is random!!
+sample_n(loan,10)
+
+# Lets take a sample of 75/25 like before. Dplyr preserves class. 
+training_sample <- sample(c(TRUE, FALSE), nrow(loan), replace = T, prob = c(0.75,0.25)) #no things in two dataset is done by replace
+train <- loan[training_sample, ]
+test <- loan[!training_sample, ]
+
+#lets run LDA like before
+lda.loan<- lda(loan_status ~ ., train)
+
+# do a quick plot to understand how good the model is
+plot(lda.loan, col = as.integer(train$loan_status))
+
+# Sometime bell curves are better
+plot(lda.loan, dimen = 1, type = "b")
+
+# THis plot shows the essense of LDA. It puts everything on a line and finds cutoffs. 
+# Partition plots
+install.packages("klaR")
+library(klaR)
+attach(train)
+str(train)
+#when I do structure on the train dataframe, I can find out that there
+#are no factors in the dataset, To make sure that you run partimat variable below,
+# the variables of the dataset needs ro be a factor so this line of code won't work in our case
+partimat(loan_status ~ purpose+dti+home_ownership+term, data=train, method="lda")
+################################################
+
+
+# focus on accuracy. Table function
+lda.train <- predict(lda.loan)
+train$lda <- lda.train$class
+table(train$lda,train$loan_status)
+
+
+# running accuracy on the training set shows how good the model is. It is not an indication of "true" accuracy. We will use the test set to approximate accuracy
+lda.test <- predict(lda.loan,test)
+test$lda <- lda.test$class
+table(test$lda,test$loan_status)
 
 
 
